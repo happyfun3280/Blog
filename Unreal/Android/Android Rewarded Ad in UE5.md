@@ -7,6 +7,9 @@
 - This is based on Unreal Engine 5.2 version.
 
 ## 1. Add this Android JNI code in your project
+
+- When you call function (AndroidThunkCpp_LoadRewardedAd, AndroidThunkCpp_ShowRewardedAd or AndroidThunkCpp_IsRewardedAdAvailable), you should wrap them with `#if PLATFORM_ANDROID` and `#endif`.
+- This works in the android device only.
 ```cpp
 #if PLATFORM_ANDROID
 
