@@ -92,7 +92,20 @@ bool AndroidThunkCpp_IsRewardedAdAvailable()
 #endif
 ```
 
-## 2. Make this UPL file in your project
+## 2. Add this code where your game proceeds first (like game instance init function)
+- This code must be called before using rewarded ad.
+```cpp
+#if PLATFORM_ANDROID
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		AndroidThunkJava_LoadRewardedAd = FJavaWrapper::FindMethod(Env, FJavaWrapper::GoogleServicesClassID, "AndroidThunkJava_LoadRewardedAd", "(Ljava/lang/String;)V", false);
+		AndroidThunkJava_ShowRewardedAd = FJavaWrapper::FindMethod(Env, FJavaWrapper::GoogleServicesClassID, "AndroidThunkJava_ShowRewardedAd", "()V", false);
+		AndroidThunkJava_IsRewardedAdAvailable = FJavaWrapper::FindMethod(Env, FJavaWrapper::GoogleServicesClassID, "AndroidThunkJava_IsRewardedAdAvailable", "()Z", false);
+	}
+#endif
+```
+
+## 3. Make this UPL file in your project
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <root xmlns:android="http://schemas.android.com/apk/res/android">
@@ -220,7 +233,7 @@ bool AndroidThunkCpp_IsRewardedAdAvailable()
 </root>
 ```
 
-## 3. Include the UPL file above from Build.cs file
+## 4. Include the UPL file above from Build.cs file
 ```cs
 using System.IO;
 using UnrealBuildTool;
