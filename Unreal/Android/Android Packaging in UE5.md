@@ -18,6 +18,10 @@
 		- `Package game data inside .apk?` : `true`
 		- `Disable verify OBB on first start/update` : `true`
 		- `Use externalFilesDir for UnrealGame files?` : `true`
+- `Project Settings - Plugins - AndroidFileServer`
+	- `Packaging`
+		- `Use AndroidFileServer` : `true`
+
 
 ### Android Simple Packaging
 - `Project Settings - Project - Packaging - Project`
