@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+  <buildGradleAdditions>
+    <insert>
+      dependencies {
+      <!-- Added new here-->
+      implementation 'com.google.android.play:app-update:2.1.0'
+      implementation 'com.google.android.play:review:2.0.1'
+      implementation 'com.google.android.play:feature-delivery:2.1.0'
+      implementation 'com.google.android.play:asset-delivery:2.2.2'
+
+      }
+    </insert>
+  </buildGradleAdditions>
+
+  <gameActivityImportAdditions>
+    <insert>
+      import androidx.annotation.NonNull;
+      import com.google.android.gms.ads.AdError;
+      import com.google.android.gms.ads.OnUserEarnedRewardListener;
+      import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+
+      import com.google.android.gms.ads.rewarded.RewardedAd;
+      import com.google.android.gms.ads.rewarded.RewardItem;
+    </insert>
+  </gameActivityImportAdditions>
+
+  <gameActivityClassAdditions>
+    <insert>
+      public RewardedAd rewardedAd;
+      public AdRequest rewardedAdRequest;
+      public boolean isRewardedAdLoaded;
+      public RewardItem rewardItem;
+
+      public void AndroidThunkJava_LoadRewardedAd(String AdMobAdUnitID)
+      {
+      rewardedAdRequest = new AdRequest.Builder().build();
+      rewardedAd = null;
+      isRewardedAdLoaded = false;
+
+      _activity.runOnUiThread(new Runnable()
+      {
+      @Override
+      public void run()
+      {
+      FullScreenContentCallback fullScreenContentCallback = new FullScreenContentCallback() {
+      @Override
+      public void onAdDismissedFullScreenContent() {
+
+      Log.debug("Rewarded Ad onAdDismissedFullScreenContent");
+      }
+
+      @Override
+      public void onAdShowedFullScreenContent() {
+
+      Log.debug("Rewarded Ad onAdShowedFullScreenContent");
+      }
+
+      @Override
+      public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+      rewardedAd = null;
+      isRewardedAdLoaded = false;
+
+      Log.debug("Rewarded Ad onRewardedAdFailedToShow : " + adError.getCode());
+      nativeOnFailedRewardedAd();
+
+      }
+      };
+
+      RewardedAd.load(_activity, AdMobAdUnitID, rewardedAdRequest, new RewardedAdLoadCallback()
+      {
+      @Override
+      public void onAdLoaded(RewardedAd ad) {
+      rewardedAd = ad;
+      isRewardedAdLoaded = true;
+
+      rewardedAd.setFullScreenContentCallback(fullScreenContentCallback);
+
+      Log.debug("Rewarded Ad successfully loaded.");
+
+      nativeOnLoadedRewardedAd();
+      }
+
+      @Override
+      public void onAdFailedToLoad(LoadAdError adError) {
+      Log.debug("Rewarded Ad failed to load, errocode: " + adError.getCode());
+      isRewardedAdLoaded = false;
+      rewardedAd = null;
+
+      nativeOnLoadFailedRewardedAd();
+      }
+
+      });
+      }
+      });
+      }
+
+      public boolean AndroidThunkJava_IsRewardedAdAvailable()
+      {
+      return rewardedAd != null   <![CDATA[&&]]> isRewardedAdLoaded;
+      }
+
+      public void AndroidThunkJava_ShowRewardedAd()
+      {
+      if(AndroidThunkJava_IsRewardedAdAvailable())
+      {
+      _activity.runOnUiThread(new Runnable()
+      {
+      @Override
+      public void run()
+      {
+
+      rewardedAd.show(_activity, new OnUserEarnedRewardListener()
+      {
+      @Override
+      public void onUserEarnedReward(@NonNull RewardItem item)
+      {
+      rewardItem = item;
+
+      Log.debug("User Earned Reward : " + rewardItem.getType() + " " + rewardItem.getAmount());
+      nativeOnSucceededRewardedAd(rewardItem.getType(), rewardItem.getAmount());
+      }
+
+      });
+
+      }
+      });
+      }
+      else
+      {
+      Log.debug("Rewarded Ad is not available to show - call LoadRewardedAd or wait for it to finish loading");
+      }
+      }
+
+      public native void nativeOnLoadedRewardedAd();
+      public native void nativeOnLoadFailedRewardedAd();
+      public native void nativeOnSucceededRewardedAd(String type, int amount);
+      public native void nativeOnFailedRewardedAd();
+    </insert>
+  </gameActivityClassAdditions>
+</root>
