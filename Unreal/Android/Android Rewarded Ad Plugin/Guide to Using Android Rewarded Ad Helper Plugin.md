@@ -2,6 +2,19 @@
 
 ![alt text](Preview.png)
 
+1. Turn off your unreal engine editor.
+2. Add this plugin to `[YourProject]/Plugins` folder.
+3. Rebuild unreal project by clicking on the .uproject file.
+4. Add Below codes to `[YourProject]/Source/[YourProject].Target.cs`
+```csharp
+if (Target.Platform == UnrealTargetPlatform.Android)
+{
+	ExtraModuleNames.Add("OnlineSubsystem");
+	ExtraModuleNames.Add("OnlineSubsystemGooglePlay");
+	ExtraModuleNames.Add("AndroidAdvertising");
+}
+```
+
 # Specifications
 - This plugin is optimized for Unreal Engine 5.2.1.
 
